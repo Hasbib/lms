@@ -1,60 +1,39 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import NavbarSA from '@/layout/NavbarSA.vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import NavbarAdmin from '@/layout/NavbarSA.vue';
 import SidebarSA from '@/layout/SidebarSA.vue';
 import ButtonBiru from '@/components/ButtonBiru.vue';
 import ButtonTransparanComponen from '@/components/ButtonTransparanComponen.vue';
 import ButtonMerah from '@/components/ButtonMerah.vue';
-import axios from 'axios';
-import { useRouter, useRoute } from 'vue-router';
 
-const mediapartnersData = ref([]);
-const imagePreview = ref(null);
-const route = useRoute();
-const router = useRouter();
+const isSidebarVisible = ref(true);
+const sosmedData = ref([]);
 const searchQuery = ref('');
 const isModalVisible = ref(false);
 const isEditModalVisible = ref(false);
-const currentMedia = ref(null);
+const currentSosMed = ref(null);
 const isDeleteModalVisible = ref(false);
-const mediapartnerToDelete = ref(null);
+const sosmedToDelete = ref(null);
 const isToastVisible = ref(false);
-const toastMessage = ref('');
 const selectedSort = ref('Sort');
+const toastMessage = ref('');
 const currentPage = ref(1);
 const itemsPerPage = 10;
 const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage));
 
-const form = ref({
-    name: '',
-    image: null,
-});
+// const form = ref({
 
-const handleFileUpload = (event) => {
-    form.value.image = event.target.files[0];
-};
-
-const handleFileUploadEdit = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        form.value.image = file;
-        imagePreview.value = URL.createObjectURL(file);
-    } else {
-        form.value.image = null;
-        imagePreview.value = null;
-    }
-};
-
+// });
 
 const filteredData = computed(() => {
-    let sortedData = [...mediapartnersData.value];
+    let sortedData = [...sosmedData.value];
     if (selectedSort.value === 'newest') {
         sortedData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     } else if (selectedSort.value === 'oldest') {
         sortedData.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
     }
-    return sortedData.filter(media =>
-        media.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+    return sortedData.filter(sosmed =>
+        sosmed.name.toLowerCase().includes(searchQuery.value.toLowerCase())
     );
 });
 
@@ -69,7 +48,6 @@ const goToPage = (page) => {
         currentPage.value = page;
     }
 };
-
 const pageNumbers = computed(() => {
     const pages = [];
     if (totalPages.value <= 5) {
@@ -86,102 +64,50 @@ const pageNumbers = computed(() => {
     return pages;
 });
 
-const fetchMediaPartnerUsData = async () => {
-    try {
-        const response = await axios.get('/media-partners');
-        mediapartnersData.value = response.data;
-    } catch (error) {
-        console.error('Error fetching About Us data:', error);
-    }
+const fetchCategoryData = async () => {
+
 };
 
-const fetchMediaPartneIdrUsData = async () => {
-    const id = route.params.id;
-    try {
-        const response = await axios.get(`/media-partners/${id}`);
-        form.value.name = response.data.name;
-        imagePreview.value = `${axios.defaults.baseURL.replace('/api', '')}/storage/uploads/${response.data.image}`;
-    } catch (error) {
-        console.error('Error fetching data for edit:', error);
-    }
+const submitSkillForm = async () => {
+
 };
 
-const submitForm = async () => {
-    const formData = new FormData();
-    formData.append('name', form.value.name);
-    if (form.value.image) {
-        formData.append('image', form.value.image);
-    }
-
-    try {
-        const response = await axios.post('/media-partners', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        closeAddCategoryModal();
-        showToast('Media Partner deleted successfully!');
-        await fetchMediaPartnerUsData();
-        form.value.name = '';
-        form.value.image = '';
-
-        console.log(response.data.message);
-        router.push('/cms/media-partner');
-    } catch (error) {
-        console.error('Error deleting category:', error);
-        showToast('Error deleting Media Partner.');
-    }
-};
-
-const showAddCategoryModal = () => {
+const showAddSosmedModal = () => {
     isModalVisible.value = true;
     document.documentElement.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
     document.body.style.paddingRight = '15px';
 };
 
-const closeAddCategoryModal = () => {
+const closeAddSosMedModal = () => {
     isModalVisible.value = false;
     document.documentElement.style.overflow = '';
     document.body.style.overflow = '';
     document.body.style.paddingRight = '';
 };
 
-const saveCategory = async () => {
-    try {
-        if (currentMedia.value) {
-            await axios.post(`/categories/${currentMedia.value.id_media_partner}`, {
-                name: currentMedia.value.name,
-                image: currentMedia.value.image
-            });
-            fetchMediaPartnerUsData();
-            closeEditCategoryModal();
-            showToast('Media Partner deleted successfully!');
-        }
-    } catch (error) {
-        console.error('Error deleting category:', error);
-        showToast('Error deleting Media Partner.');
-    }
+const saveUpdateSkills = async () => {
+
 };
 
-const showEditMediaModal = (media) => {
-    currentMedia.value = { ...media };
+const showEditSosmedModal = (sosmed) => {
+    currentSosMed.value = { ...sosmed };
     isEditModalVisible.value = true;
     document.documentElement.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
     document.body.style.paddingRight = '15px';
 };
 
-const closeEditCategoryModal = () => {
+const closeEditSosmedModal = () => {
     isEditModalVisible.value = false;
-    currentMedia.value = null;
+    currentSosMed.value = null;
     document.documentElement.style.overflow = '';
     document.body.style.overflow = '';
     document.body.style.paddingRight = '';
 };
 
-const showDeleteMediaModal = (media) => {
-    mediapartnerToDelete.value = media;
+const showDeleteSosmedModal = (sosmed) => {
+    sosmedToDelete.value = sosmed;
     isDeleteModalVisible.value = true;
 
     document.documentElement.style.overflow = 'hidden';
@@ -189,58 +115,44 @@ const showDeleteMediaModal = (media) => {
     document.body.style.paddingRight = '15px';
 };
 
-const closeDeleteCategoryModal = () => {
+const closeDeleteSosMedModal = () => {
     isDeleteModalVisible.value = false;
-    mediapartnerToDelete.value = null;
+    sosmedToDelete.value = null;
 
     document.documentElement.style.overflow = '';
     document.body.style.overflow = '';
     document.body.style.paddingRight = '';
 };
 
-const deleteCategory = async () => {
-    try {
-        if (mediapartnerToDelete.value) {
-            await axios.delete(`/media-partners/${mediapartnerToDelete.value.id_media_partner}`);
-            fetchMediaPartnerUsData();
-            closeModal();
-            showToast('Media Partner deleted successfully!');
-        }
-    } catch (error) {
-        console.error('Error deleting category:', error);
-        showToast('Error deleting Media Partner.');
-    }
-};
-
-const showToast = (message) => {
-    toastMessage.value = message;
-    isToastVisible.value = true;
-    setTimeout(() => {
-        isToastVisible.value = false;
-    }, 3000);
-};
-
-const closeModal = () => {
-    isDeleteModalVisible.value = false;
-    document.documentElement.style.overflow = '';
-    document.body.style.overflow = '';
-    document.body.style.paddingRight = '';
+const deleteSkills = async () => {
 };
 
 onMounted(() => {
-    fetchMediaPartnerUsData();
-    fetchMediaPartneIdrUsData();
+    fetchCategoryData();
 });
+
+const checkWindowSize = () => {
+    isSidebarVisible.value = window.innerWidth >= 770;
+};
+
+onMounted(() => {
+    checkWindowSize();
+    window.addEventListener('resize', checkWindowSize);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('resize', checkWindowSize);
+})
 </script>
 
 <template>
     <div class="navbg-sa">
         <!-- NAVBAR START -->
-        <NavbarSA />
+        <NavbarAdmin />
         <!-- NAVBAR END -->
 
         <!-- SIDEBAR START -->
-        <SidebarSA />
+        <SidebarSA v-if="isSidebarVisible" />
         <!-- SIDEBAR END -->
 
         <div id="contentsa" class="dashboard-sa">
@@ -249,56 +161,72 @@ onMounted(() => {
                     <div class="d-flex justify-content-between mb-3">
                         <div class="d-flex justify-content-start">
                             <div class="search-input w-50 me-md-1">
-                                <input type="text" class="form-control rounded-3 h-40 c-border" v-model="searchQuery"
+                                <input type="text" class="form-control c-border rounded-3 h-40" v-model="searchQuery"
                                     placeholder="Search" />
                                 <i class="bi bi-search"></i>
                             </div>
-                            <select class="form-select w-25 c-border ms-2 h-40 c-border" v-model="selectedSort">
+                            <select class="form-select w-25 c-border h-40 ms-2" v-model="selectedSort">
                                 <option selected>Sort</option>
                                 <option value="newest">Newest</option>
                                 <option value="oldest">Oldest</option>
                             </select>
                         </div>
-                        <ButtonBiru class="fs-16 px-3 rounded-3 h-43" @click="showAddCategoryModal">Add Media
+                        <ButtonBiru class="fs-16 px-3 rounded-3 h-43" @click="showAddSosmedModal">Add Sosial Media
                         </ButtonBiru>
                     </div>
 
                     <!-- Add Modal -->
-                    <div v-if="isModalVisible" class="modal-backdrop" @click="closeAddCategoryModal"></div>
+                    <div v-if="isModalVisible" class="modal-backdrop" @click="closeAddSosMedModal"></div>
                     <div v-if="isModalVisible" class="modal fade show d-block" role="dialog"
-                        aria-labelledby="exampleModalLabel" aria-hidden="true" @click.self="closeAddCategoryModal">
-                        <div class="modal-dialog custom-modal modal-dialog-centered">
+                        aria-labelledby="exampleModalLabel" aria-hidden="true" @click.self="closeAddSosMedModal">
+                        <div class="modal-dialog custom-modal-sosmed modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header mb--3">
                                     <h5 class="fs-16 fw-medium" id="exampleModalLabel">
-                                        <i class="bi bi-file-earmark-plus me-1"></i>Add Media Partner
+                                        <i class="bi bi-file-earmark-plus me-1"></i>Add Sosial Media
                                     </h5>
                                     <button type="button" class="btn-close fs-12 c-close"
-                                        @click="closeAddCategoryModal"></button>
+                                        @click="closeAddSosMedModal"></button>
                                 </div>
                                 <hr class="mt-0">
                                 <div class="ps-3 pe-4 mt-3 mb-2">
-                                    <div class="d-flex align-items-center">
-                                        <label for="categoryName" class="me-5 fs-16 mb-0">Name</label>
-                                        <input type="text" id="categoryName" class="form-control w-100 h-45 c-border"
-                                            placeholder="Enter category name" v-model="form.name" />
+                                    <div class="d-flex justify-content-between mt-3">
+                                        <label for="categoryName" class="fs-16 mb-0 mt-2">No Handphone</label>
+                                        <input type="text" id="categoryName" class="form-control c-border w-75 h-43"
+                                            placeholder="No Handphone" />
                                     </div>
-                                    <div class="d-flex align-items-center mt-3">
-                                        <label for="categoryName" class="fs-16 mb-0 me-60">Logo</label>
-                                        <input type="file" id="fileInput" class="hidden" accept="image/*"
-                                            @change="handleFileUpload" />
-                                        <button type="button" class="btn c-border px-4 py-2"
-                                            onclick="document.getElementById('fileInput').click();">
-                                            Upload
-                                        </button>
+                                    <div class="d-flex justify-content-between mt-3">
+                                        <label for="categoryName" class="fs-16 mb-0 mt-2">Link Tiktok</label>
+                                        <input type="text" id="categoryName" class="form-control c-border w-75 h-43"
+                                            placeholder="Link Tiktok" />
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-3">
+                                        <label for="categoryName" class="fs-16 mb-0 mt-2">Link Instagram</label>
+                                        <input type="text" id="categoryName" class="form-control c-border w-75 h-43"
+                                            placeholder="Link Instagram" />
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-3">
+                                        <label for="categoryName" class="fs-16 mb-0 mt-2">Link X</label>
+                                        <input type="text" id="categoryName" class="form-control c-border w-75 h-43"
+                                            placeholder="Link X" />
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-3">
+                                        <label for="categoryName" class="fs-16 mb-0 mt-2">Link Youtube</label>
+                                        <input type="text" id="categoryName" class="form-control c-border w-75 h-43"
+                                            placeholder="Link Youtube" />
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-3">
+                                        <label for="categoryName" class="fs-16 mb-0 mt-2">Link Linkedln</label>
+                                        <input type="text" id="categoryName" class="form-control c-border w-75 h-43"
+                                            placeholder="Link Linkdln" />
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-center mb-5">
                                     <ButtonTransparanComponen
                                         class="mt-4 my-0 h-40 w-30 me-5 rounded-3 c-border bg-white fs-16 fw-medium"
-                                        @click="closeAddCategoryModal">Cancel</ButtonTransparanComponen>
+                                        @click="closeAddSosMedModal">Cancel</ButtonTransparanComponen>
                                     <ButtonBiru class="ms-3 mt-4 my-0 h-40 w-30 rounded-3 fs-16 fw-medium"
-                                        @click="submitForm">Save</ButtonBiru>
+                                        @click="submitSkillForm">Save</ButtonBiru>
                                 </div>
                             </div>
                         </div>
@@ -308,21 +236,24 @@ onMounted(() => {
                             <table class="table custom-table rounded-4">
                                 <thead class="thead-custom">
                                     <tr class="ps-4">
-                                        <th class="ps-3 fs-16 fw-medium" style="width: 1px;">No</th>
-                                        <th class="fs-16 fw-medium" style="width: 200px;">Logo Media Partner</th>
-                                        <th class="fs-16 fw-medium" style="width: 400px;">Nama Media Partner</th>
-                                        <th class="ps-4 fs-16 fw-medium" style="width: 10px;">Action</th>
+                                        <th class="ps-3 fs-16 fw-medium w-1">No</th>
+                                        <th class="fs-16 fw-medium w-200">No Handphone</th>
+                                        <th class="fs-16 fw-medium w-200">Link Tiktok</th>
+                                        <th class="fs-16 fw-medium w-200">Link X</th>
+                                        <th class="fs-16 fw-medium w-200">Link Youtube</th>
+                                        <th class="fs-16 fw-medium w-200">Link Linkedln</th>
+                                        <th class="ps-4 fs-16 fw-medium w-10">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody class="table-custom">
                                     <tr v-for="(item, index) in paginatedData" :key="item.id">
-                                        <td class="ps-4 pt-4">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-                                        <td>
-                                            <img :src="`${axios.defaults.baseURL.replace('/api', '')}/storage/uploads/${item.image}`"
-                                                class="rounded-4" style="width: 55px; height: 55px; ">
-                                        </td>
-                                        <td class="pt-4">{{ item.name }}</td>
-                                        <td class="ps-4 pt-4">
+                                        <td class="ps-4">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+                                        <td>link</td>
+                                        <td>link</td>
+                                        <td>link</td>
+                                        <td>link</td>
+                                        <td>link</td>
+                                        <td class="ps-4">
                                             <div class="dropdown ps-2">
                                                 <button class="btn border-0 dropdown-toggle" type="button"
                                                     data-bs-toggle="dropdown">
@@ -333,14 +264,14 @@ onMounted(() => {
                                                     <h5 class="ms-3 fs-16 fw-normal">Action</h5>
                                                     <li>
                                                         <a class="dropdown-item fw-normal fs-16" href="#"
-                                                            @click="showEditMediaModal(item)">
+                                                            @click="showEditSosmedModal(item)">
                                                             <i class="bi bi-pencil-square me-1 fs-16"></i>
                                                             Edit
                                                         </a>
                                                     </li>
                                                     <li>
                                                         <a class="dropdown-item fw-normal" href="#"
-                                                            @click="showDeleteMediaModal(item)">
+                                                            @click="showDeleteSosmedModal(item)">
                                                             <i class="bi bi-trash me-1 fs-16"></i>
                                                             Delete
                                                         </a>
@@ -350,29 +281,44 @@ onMounted(() => {
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td colspan="4" class="p-1">
+                                        <td colspan="7" class="p-1">
                                             <nav>
-                                                <ul class="pagination custom-pagination justify-content-center">
-                                                    <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                                                        <a class="page-link" href="#"
-                                                            @click.prevent="goToPage(currentPage - 1)">
-                                                            <i class="bi bi-chevron-left"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li v-for="page in pageNumbers" :key="page" class="page-item"
-                                                        :class="{ active: page === currentPage }">
-                                                        <a class="page-link" href="#" @click.prevent="goToPage(page)"
-                                                            v-if="page !== '...'">{{ page }}</a>
-                                                        <span class="page-link" v-else>...</span>
-                                                    </li>
-                                                    <li class="page-item"
-                                                        :class="{ disabled: currentPage === totalPages }">
-                                                        <a class="page-link" href="#"
-                                                            @click.prevent="goToPage(currentPage + 1)">
-                                                            <i class="bi bi-chevron-right"></i>
-                                                        </a>
-                                                    </li>
-                                                </ul>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div class="d-flex align-items-center">
+                                                        <label for="itemsPerPage" class="me-2">Items per page:</label>
+                                                        <select id="itemsPerPage" class="form-select w-auto"
+                                                            v-model="itemsPerPage">
+                                                            <option value="10">10</option>
+                                                            <option value="20">20</option>
+                                                            <option value="50">50</option>
+                                                        </select>
+                                                    </div>
+                                                    <span class="fs-16">{{ (currentPage - 1) * itemsPerPage + 1 }} - {{
+                                                        Math.min(currentPage * itemsPerPage, filteredData.length) }} of
+                                                        {{ filteredData.length }} items</span>
+                                                    <ul class="pagination custom-pagination mb-0">
+                                                        <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                                                            <a class="page-link" href="#"
+                                                                @click.prevent="goToPage(currentPage - 1)">
+                                                                <i class="bi bi-chevron-left"></i>
+                                                            </a>
+                                                        </li>
+                                                        <li v-for="page in pageNumbers" :key="page" class="page-item"
+                                                            :class="{ active: page === currentPage }">
+                                                            <a class="page-link" href="#"
+                                                                @click.prevent="goToPage(page)" v-if="page !== '...'">{{
+                                                                    page }}</a>
+                                                            <span class="page-link" v-else>...</span>
+                                                        </li>
+                                                        <li class="page-item"
+                                                            :class="{ disabled: currentPage === totalPages }">
+                                                            <a class="page-link" href="#"
+                                                                @click.prevent="goToPage(currentPage + 1)">
+                                                                <i class="bi bi-chevron-right"></i>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </nav>
                                         </td>
                                     </tr>
@@ -380,74 +326,91 @@ onMounted(() => {
                             </table>
 
                             <!-- Edit Modal -->
-                            <div v-if="isEditModalVisible" class="modal-backdrop" @click="closeEditCategoryModal"></div>
+                            <div v-if="isEditModalVisible" class="modal-backdrop" @click="closeEditSosmedModal"></div>
                             <div v-if="isEditModalVisible" class="modal fade show d-block" role="dialog"
                                 aria-labelledby="exampleModalLabel" aria-hidden="false"
-                                @click.self="closeEditCategoryModal">
+                                @click.self="closeEditSosmedModal">
                                 <div class="modal-dialog custom-modal modal-dialog-centered">
                                     <div class="modal-content">
                                         <div class="modal-header mb--3">
                                             <h5 class="fs-16 fw-medium" id="exampleModalLabel">
-                                                <i class="bi bi-pencil-square me-1"></i>Edit Category
+                                                <i class="bi bi-pencil-square me-1"></i>Edit Skill
                                             </h5>
                                             <button type="button" class="btn-close fs-12 c-close"
-                                                @click="closeEditCategoryModal"></button>
+                                                @click="closeEditSosmedModal"></button>
                                         </div>
                                         <hr class="mt-0">
-                                        <div class="ps-3 mt-3 mb-2">
-                                            <div class="d-flex align-items-center">
-                                                <label for="editCategoryName" class="me-5 fs-16 mb-0">Name
-                                                </label>
-                                                <input type="text" id="editCategoryName" v-model="currentMedia.name"
-                                                    class="form-control w-66 h-45 c-border"
-                                                    placeholder="Enter category name" />
+                                        <div class="ps-3 pe-4 mt-3 mb-2">
+                                            <div class="d-flex justify-content-between mt-3">
+                                                <label for="categoryName" class="fs-16 mb-0 mt-2">No Handphone</label>
+                                                <input type="text" id="categoryName"
+                                                    class="form-control c-border w-75 h-43"
+                                                    placeholder="No Handphone" />
                                             </div>
-                                            <div class="d-flex align-items-center mt-3">
-                                                <label for="categoryName" class="fs-16 mb-0 me-60">Logo</label>
-                                                <img v-if="imagePreview" :src="imagePreview" alt="Image Preview"
-                                                    class="img-fluid mb-2" style="max-height: 200px;">
-                                                <input type="file" id="fileInput" class="hidden" accept="image/*"
-                                                    @change="handleFileUploadEdit" />
-                                                <button type="button" class="btn c-border px-4 py-2"
-                                                    onclick="document.getElementById('fileInput').click();">
-                                                    Upload
-                                                </button>
+                                            <div class="d-flex justify-content-between mt-3">
+                                                <label for="categoryName" class="fs-16 mb-0 mt-2">Link Tiktok</label>
+                                                <input type="text" id="categoryName"
+                                                    class="form-control c-border w-75 h-43" placeholder="Link Tiktok" />
+                                            </div>
+                                            <div class="d-flex justify-content-between mt-3">
+                                                <label for="categoryName" class="fs-16 mb-0 mt-2">Link Instagram</label>
+                                                <input type="text" id="categoryName"
+                                                    class="form-control c-border w-75 h-43"
+                                                    placeholder="Link Instagram" />
+                                            </div>
+                                            <div class="d-flex justify-content-between mt-3">
+                                                <label for="categoryName" class="fs-16 mb-0 mt-2">Link X</label>
+                                                <input type="text" id="categoryName"
+                                                    class="form-control c-border w-75 h-43" placeholder="Link X" />
+                                            </div>
+                                            <div class="d-flex justify-content-between mt-3">
+                                                <label for="categoryName" class="fs-16 mb-0 mt-2">Link Youtube</label>
+                                                <input type="text" id="categoryName"
+                                                    class="form-control c-border w-75 h-43"
+                                                    placeholder="Link Youtube" />
+                                            </div>
+                                            <div class="d-flex justify-content-between mt-3">
+                                                <label for="categoryName" class="fs-16 mb-0 mt-2">Link Linkedln</label>
+                                                <input type="text" id="categoryName"
+                                                    class="form-control c-border w-75 h-43"
+                                                    placeholder="Link Linkdln" />
                                             </div>
                                         </div>
                                         <div class="d-flex justify-content-center mb-5">
                                             <ButtonTransparanComponen
                                                 class="mt-4 my-0 h-40 w-30 me-5 rounded-3 c-border bg-white fs-16 fw-medium"
-                                                @click="closeEditCategoryModal">Cancel</ButtonTransparanComponen>
+                                                @click="closeEditSosmedModal">Cancel</ButtonTransparanComponen>
                                             <ButtonBiru class="ms-3 mt-4 my-0 h-40 w-30 rounded-3 fs-16 fw-medium"
-                                                @click="saveCategory">Save</ButtonBiru>
+                                                @click="saveUpdateSkills">Save</ButtonBiru>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Delete Modal -->
-                            <div v-if="isDeleteModalVisible" class="modal-backdrop" @click="closeDeleteCategoryModal">
+                            <div v-if="isDeleteModalVisible" class="modal-backdrop" @click="closeDeleteSosMedModal">
                             </div>
                             <div v-if="isDeleteModalVisible" class="modal fade show d-block" role="dialog"
                                 aria-labelledby="deleteModalLabel" aria-hidden="true"
-                                @click.self="closeDeleteCategoryModal">
+                                @click.self="closeDeleteSosMedModal">
                                 <div class="modal-dialog custom-modal modal-dialog-centered">
                                     <div class="modal-content pt-3">
                                         <div
                                             class="modal-header mb-3 d-flex flex-column justify-content-center align-items-center text-center">
                                             <PhTrashSimple :size="50" color="#ff4c4c" />
-                                            <h5 class="mb-4 mt-3 fs-16 fw-medium text-merah">Delete Category</h5>
+                                            <h5 class="mb-4 mt-3 fs-16 fw-medium text-merah">Delete Sosial Media</h5>
                                             <h5 class="fs-16 fw-light opacity-50">
-                                                Are you sure you want to delete this category? Once deleted, this data
+                                                Are you sure you want to delete this Sosial Media? Once deleted, this
+                                                data
                                                 cannot be restored.
                                             </h5>
                                         </div>
                                         <div class="d-flex justify-content-center mb-5">
                                             <ButtonTransparanComponen
                                                 class="my-0 h-40 w-30 me-5 rounded-3 c-border bg-white fs-16 fw-medium"
-                                                @click="closeDeleteCategoryModal">No, Cancel</ButtonTransparanComponen>
+                                                @click="closeDeleteSosMedModal">No, Cancel</ButtonTransparanComponen>
                                             <ButtonMerah class="ms-3 my-0 h-40 w-30 rounded-3 fs-16 fw-medium"
-                                                @click="deleteCategory">Yes, Delete</ButtonMerah>
+                                                @click="deleteSkills">Yes, Delete</ButtonMerah>
                                         </div>
                                     </div>
                                 </div>

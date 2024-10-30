@@ -65,14 +65,12 @@ onMounted(() => {
                     <p class="fs-16">Kursus Gratis</p>
                 </div>
             </div>
-            <div class="scrollable-row cmt-40 ms-5 me-5 ms-md-0 me-md-4" v-for="item in mediapartnersData"
-                :key="item.id_media_partner">
-                <div class="col-xl-2 d-flex justify-content-center me-3 me-xl-0">
-                    <a :href="item.social" target="_blank" rel="noopener noreferrer" class="d-flex align-items-center garis- text-dark">
-                        <img :src="`${axios.defaults.baseURL.replace('/api', '')}/uploads/${item.file}`"
-                            alt="Media Partner Logo" width="28" height="28">
-                        <h4 class="fw-bold mb--3">{{ item.name }}</h4>
-                    </a>
+            <div class="scrollable-row cmt-40 ms-5 me-5 ms-md-0 me-md-4">
+                <div class="col-xl-2 d-flex justify-content-center me-3 me-xl-0" v-for="item in mediapartnersData"
+                    :key="item.id_media_partner">
+                    <img :src="`${axios.defaults.baseURL.replace('/api', '')}/storage/uploads/${item.image}`"
+                        alt="Media Partner Logo" width="28" height="28">
+                    <h4 class="fw-bold mb--3">{{ item.name }}</h4>
                 </div>
             </div>
         </div>

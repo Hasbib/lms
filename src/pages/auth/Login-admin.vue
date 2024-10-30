@@ -24,7 +24,7 @@ const loginAdmin = async () => {
         if (response.data.success) {
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
-            router.push('/');
+            router.push('/dashboard-superadmin');
         }
     } catch (error) {
         if (error.response?.data?.message === 'Your email is not verified. Please verify your email to login.') {

@@ -5,7 +5,6 @@ import SidebarTeacher from '@/layout/SidebarTeacher.vue';
 import ButtonBiru from '@/components/ButtonBiru.vue';
 import ButtonTransparanComponen from '@/components/ButtonTransparanComponen.vue';
 import ButtonMerah from '@/components/ButtonMerah.vue';
-import ButtonSuccess from '@/components/ButtonSuccess.vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 
@@ -239,8 +238,8 @@ onMounted(() => {
                                     <ButtonTransparanComponen
                                         class="mt-4 my-0 h-40 w-30 me-5 rounded-3 c-border bg-white fs-16 fw-medium"
                                         @click="closeAddCategoryModal">Cancel</ButtonTransparanComponen>
-                                    <ButtonSuccess class="ms-3 mt-4 my-0 h-40 w-30 rounded-3 fs-16 fw-medium"
-                                        @click="submitForm">Save</ButtonSuccess>
+                                    <ButtonBiru class="ms-3 mt-4 my-0 h-40 w-30 rounded-3 fs-16 fw-medium"
+                                        @click="submitForm">Save</ButtonBiru>
                                 </div>
                             </div>
                         </div>
@@ -343,8 +342,8 @@ onMounted(() => {
                                             <ButtonTransparanComponen
                                                 class="mt-4 my-0 h-40 w-30 me-5 rounded-3 c-border bg-white fs-16 fw-medium"
                                                 @click="closeEditCategoryModal">Cancel</ButtonTransparanComponen>
-                                            <ButtonSuccess class="ms-3 mt-4 my-0 h-40 w-30 rounded-3 fs-16 fw-medium"
-                                                @click="saveCategory">Save</ButtonSuccess>
+                                            <ButtonBiru class="ms-3 mt-4 my-0 h-40 w-30 rounded-3 fs-16 fw-medium"
+                                                @click="saveCategory">Save</ButtonBiru>
                                         </div>
                                     </div>
                                 </div>

@@ -2,6 +2,23 @@
 import NavbarSA from '@/layout/NavbarSA.vue';
 import SidebarSA from '@/layout/SidebarSA.vue';
 
+import { ref, onUnmounted, onMounted } from 'vue';
+
+const isSidebarVisible = ref(true);
+
+const checkWindowSize = () => {
+    isSidebarVisible.value = window.innerWidth >= 770;
+};
+
+onMounted(() => {
+    checkWindowSize();
+    window.addEventListener('resize', checkWindowSize);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('resize', checkWindowSize);
+})
+
 </script>
 <template>
     <div class="navbg-sa">
@@ -10,7 +27,7 @@ import SidebarSA from '@/layout/SidebarSA.vue';
         <!-- NAVBAR END -->
 
         <!-- SIDEBAR START -->
-        <SidebarSA />
+        <SidebarSA v-if="isSidebarVisible" />
         <!-- SIDEBAR END -->
 
 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted,onUnmounted } from 'vue';
 import NavbarAdmin from '@/layout/NavbarSA.vue';
 import SidebarSA from '@/layout/SidebarSA.vue';
 import ButtonBiru from '@/components/ButtonBiru.vue';
@@ -7,6 +7,21 @@ import ButtonTransparanComponen from '@/components/ButtonTransparanComponen.vue'
 import ButtonMerah from '@/components/ButtonMerah.vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+
+const isSidebarVisible = ref(true);
+
+const checkWindowSize = () => {
+    isSidebarVisible.value = window.innerWidth >= 770;
+};
+
+onMounted(() => {
+    checkWindowSize();
+    window.addEventListener('resize', checkWindowSize);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('resize', checkWindowSize);
+})
 
 const categoryData = ref([]);
 const router = useRouter();
@@ -197,7 +212,7 @@ onMounted(() => {
         <!-- NAVBAR END -->
 
         <!-- SIDEBAR START -->
-        <SidebarSA />
+        <SidebarSA v-if="isSidebarVisible" />
         <!-- SIDEBAR END -->
 
         <div id="contentsa" class="dashboard-sa">
@@ -256,9 +271,9 @@ onMounted(() => {
                             <table class="table custom-table rounded-4">
                                 <thead class="thead-custom">
                                     <tr class="ps-4">
-                                        <th class="ps-3 fs-16 fw-medium" style="width: 1px;">No</th>
-                                        <th class="fs-16 fw-medium" style="width: 750px;">Category Name</th>
-                                        <th class="ps-4 fs-16 fw-medium" style="width: 10px;">Action</th>
+                                        <th class="ps-3 fs-16 fw-medium w-1">No</th>
+                                        <th class="fs-16 fw-medium w-750">Category Name</th>
+                                        <th class="ps-4 fs-16 fw-medium w-10">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody class="table-custom">

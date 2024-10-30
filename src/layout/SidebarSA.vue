@@ -76,9 +76,9 @@
                     </li>
                     <li class="ms-18">
                         <router-link to="/cms/sosial-media"
-                            :class="['nav-link', isActive('/cms/social-media') ? 'active-sidebar' : 'color-sidebar']">
+                            :class="['nav-link', isActive('/cms/sosial-media') ? 'active-sidebar' : 'color-sidebar']">
                             <span class="icon"></span>
-                            <span class="mt-2 text p-absolute">Social Media</span>
+                            <span class="mt-2 text p-absolute">Sosial Media</span>
                         </router-link>
                     </li>
                     <li class="ms-18">

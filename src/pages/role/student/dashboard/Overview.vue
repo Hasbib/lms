@@ -30,7 +30,7 @@ onUnmounted(() => {
         <!-- NAVBAR END -->
 
         <!-- SIDEBAR START -->
-        <SidebarStudent />
+        <SidebarStudent v-if="isSidebarVisible" />
         <!-- SIDEBAR END -->
 
         <div id="content" class="overview">
