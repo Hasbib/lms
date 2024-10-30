@@ -1,23 +1,21 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import NavbarSA from '@/layout/NavbarSA.vue';
+import NavbarAdmin from '@/layout/NavbarSA.vue';
 import SidebarSA from '@/layout/SidebarSA.vue';
 import ButtonBiru from '@/components/ButtonBiru.vue';
 import ButtonTransparanComponen from '@/components/ButtonTransparanComponen.vue';
 import ButtonMerah from '@/components/ButtonMerah.vue';
 import axios from 'axios';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 
-const mediapartnersData = ref([]);
-const imagePreview = ref(null);
-const route = useRoute();
+const categoryData = ref([]);
 const router = useRouter();
 const searchQuery = ref('');
 const isModalVisible = ref(false);
 const isEditModalVisible = ref(false);
-const currentMedia = ref(null);
+const currentCategory = ref(null);
 const isDeleteModalVisible = ref(false);
-const mediapartnerToDelete = ref(null);
+const categoryToDelete = ref(null);
 const isToastVisible = ref(false);
 const toastMessage = ref('');
 const selectedSort = ref('Sort');
@@ -27,34 +25,17 @@ const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPer
 
 const form = ref({
     name: '',
-    image: null,
 });
 
-const handleFileUpload = (event) => {
-    form.value.image = event.target.files[0];
-};
-
-const handleFileUploadEdit = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        form.value.image = file;
-        imagePreview.value = URL.createObjectURL(file);
-    } else {
-        form.value.image = null;
-        imagePreview.value = null;
-    }
-};
-
-
 const filteredData = computed(() => {
-    let sortedData = [...mediapartnersData.value];
+    let sortedData = [...categoryData.value];
     if (selectedSort.value === 'newest') {
         sortedData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     } else if (selectedSort.value === 'oldest') {
         sortedData.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
     }
-    return sortedData.filter(media =>
-        media.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+    return sortedData.filter(category =>
+        category.name.toLowerCase().includes(searchQuery.value.toLowerCase())
     );
 });
 
@@ -69,7 +50,6 @@ const goToPage = (page) => {
         currentPage.value = page;
     }
 };
-
 const pageNumbers = computed(() => {
     const pages = [];
     if (totalPages.value <= 5) {
@@ -86,50 +66,29 @@ const pageNumbers = computed(() => {
     return pages;
 });
 
-const fetchMediaPartnerUsData = async () => {
+const fetchCategoryData = async () => {
     try {
-        const response = await axios.get('/media-partners');
-        mediapartnersData.value = response.data;
+        const response = await axios.get('/categories');
+        categoryData.value = response.data;
     } catch (error) {
         console.error('Error fetching About Us data:', error);
     }
 };
 
-const fetchMediaPartneIdrUsData = async () => {
-    const id = route.params.id;
-    try {
-        const response = await axios.get(`/media-partners/${id}`);
-        form.value.name = response.data.name;
-        imagePreview.value = `${axios.defaults.baseURL.replace('/api', '')}/storage/uploads/${response.data.image}`;
-    } catch (error) {
-        console.error('Error fetching data for edit:', error);
-    }
-};
-
 const submitForm = async () => {
-    const formData = new FormData();
-    formData.append('name', form.value.name);
-    if (form.value.image) {
-        formData.append('image', form.value.image);
-    }
-
     try {
-        const response = await axios.post('/media-partners', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        closeAddCategoryModal();
-        showToast('Add Media Partner successfully!');
-        await fetchMediaPartnerUsData();
-        form.value.name = '';
-        form.value.image = '';
-
+        const response = await axios.post('/categories', form.value);
         console.log(response.data.message);
-        router.push('/cms/media-partner');
+        closeAddCategoryModal();
+        showToast('Add Category successfully!');
+
+        form.value.name = '';
+        await fetchCategoryData();
+
+        router.push('/master-data/category');
     } catch (error) {
         console.error('Error deleting category:', error);
-        showToast('Error Add Media Partner.');
+        showToast('Error Add Category.');
     }
 };
 
@@ -149,23 +108,22 @@ const closeAddCategoryModal = () => {
 
 const saveCategory = async () => {
     try {
-        if (currentMedia.value) {
-            await axios.post(`/categories/${currentMedia.value.id_media_partner}`, {
-                name: currentMedia.value.name,
-                image: currentMedia.value.image
+        if (currentCategory.value) {
+            await axios.post(`/categories/${currentCategory.value.id_category}`, {
+                name: currentCategory.value.name
             });
-            fetchMediaPartnerUsData();
+            fetchCategoryData();
             closeEditCategoryModal();
-            showToast('Updated Media Partner successfully!');
+            showToast('Updated Category successfully!');
         }
     } catch (error) {
-        console.error('Error deleting category:', error);
-        showToast('Error deleting Media Partner.');
+        console.error('Error updating category:', error);
+        showToast('Error Updated Category.');
     }
 };
 
-const showEditMediaModal = (media) => {
-    currentMedia.value = { ...media };
+const showEditCategoryModal = (category) => {
+    currentCategory.value = { ...category };
     isEditModalVisible.value = true;
     document.documentElement.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
@@ -174,14 +132,14 @@ const showEditMediaModal = (media) => {
 
 const closeEditCategoryModal = () => {
     isEditModalVisible.value = false;
-    currentMedia.value = null;
+    currentCategory.value = null;
     document.documentElement.style.overflow = '';
     document.body.style.overflow = '';
     document.body.style.paddingRight = '';
 };
 
-const showDeleteMediaModal = (media) => {
-    mediapartnerToDelete.value = media;
+const showDeleteCategoryModal = (category) => {
+    categoryToDelete.value = category;
     isDeleteModalVisible.value = true;
 
     document.documentElement.style.overflow = 'hidden';
@@ -191,7 +149,7 @@ const showDeleteMediaModal = (media) => {
 
 const closeDeleteCategoryModal = () => {
     isDeleteModalVisible.value = false;
-    mediapartnerToDelete.value = null;
+    categoryToDelete.value = null;
 
     document.documentElement.style.overflow = '';
     document.body.style.overflow = '';
@@ -200,15 +158,15 @@ const closeDeleteCategoryModal = () => {
 
 const deleteCategory = async () => {
     try {
-        if (mediapartnerToDelete.value) {
-            await axios.delete(`/media-partners/${mediapartnerToDelete.value.id_media_partner}`);
-            fetchMediaPartnerUsData();
+        if (categoryToDelete.value) {
+            await axios.delete(`/categories/${categoryToDelete.value.id_category}`);
+            fetchCategoryData();
             closeModal();
-            showToast('Media Partner deleted successfully!');
+            showToast('Category deleted successfully!');
         }
     } catch (error) {
         console.error('Error deleting category:', error);
-        showToast('Error deleting Media Partner.');
+        showToast('Error deleting Category.');
     }
 };
 
@@ -228,15 +186,14 @@ const closeModal = () => {
 };
 
 onMounted(() => {
-    fetchMediaPartnerUsData();
-    fetchMediaPartneIdrUsData();
+    fetchCategoryData();
 });
 </script>
 
 <template>
     <div class="navbg-sa">
         <!-- NAVBAR START -->
-        <NavbarSA />
+        <NavbarAdmin />
         <!-- NAVBAR END -->
 
         <!-- SIDEBAR START -->
@@ -249,17 +206,17 @@ onMounted(() => {
                     <div class="d-flex justify-content-between mb-3">
                         <div class="d-flex justify-content-start">
                             <div class="search-input w-50 me-md-1">
-                                <input type="text" class="form-control rounded-3 h-40 c-border" v-model="searchQuery"
+                                <input type="text" class="form-control c-border rounded-3 h-40" v-model="searchQuery"
                                     placeholder="Search" />
                                 <i class="bi bi-search"></i>
                             </div>
-                            <select class="form-select w-25 c-border ms-2 h-40 c-border" v-model="selectedSort">
+                            <select class="form-select w-25 c-border h-40 ms-2" v-model="selectedSort">
                                 <option selected>Sort</option>
                                 <option value="newest">Newest</option>
                                 <option value="oldest">Oldest</option>
                             </select>
                         </div>
-                        <ButtonBiru class="fs-16 px-3 rounded-3 h-43" @click="showAddCategoryModal">Add Media
+                        <ButtonBiru class="fs-16 px-3 rounded-3 h-43" @click="showAddCategoryModal">Add Category
                         </ButtonBiru>
                     </div>
 
@@ -271,26 +228,17 @@ onMounted(() => {
                             <div class="modal-content">
                                 <div class="modal-header mb--3">
                                     <h5 class="fs-16 fw-medium" id="exampleModalLabel">
-                                        <i class="bi bi-file-earmark-plus me-1"></i>Add Media Partner
+                                        <i class="bi bi-file-earmark-plus me-1"></i>Add Category
                                     </h5>
                                     <button type="button" class="btn-close fs-12 c-close"
                                         @click="closeAddCategoryModal"></button>
                                 </div>
                                 <hr class="mt-0">
-                                <div class="ps-3 pe-4 mt-3 mb-2">
+                                <div class="ps-3 mt-3 mb-2">
                                     <div class="d-flex align-items-center">
-                                        <label for="categoryName" class="me-5 fs-16 mb-0">Name</label>
-                                        <input type="text" id="categoryName" class="form-control w-100 h-45 c-border"
+                                        <label for="categoryName" class="me-3 fs-16 mb-0">Name Category</label>
+                                        <input type="text" id="categoryName" class="form-control w-66 h-43"
                                             placeholder="Enter category name" v-model="form.name" />
-                                    </div>
-                                    <div class="d-flex align-items-center mt-3">
-                                        <label for="categoryName" class="fs-16 mb-0 me-60">Logo</label>
-                                        <input type="file" id="fileInput" class="hidden" accept="image/*"
-                                            @change="handleFileUpload" />
-                                        <button type="button" class="btn c-border px-4 py-2"
-                                            onclick="document.getElementById('fileInput').click();">
-                                            Upload
-                                        </button>
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-center mb-5">
@@ -309,20 +257,15 @@ onMounted(() => {
                                 <thead class="thead-custom">
                                     <tr class="ps-4">
                                         <th class="ps-3 fs-16 fw-medium" style="width: 1px;">No</th>
-                                        <th class="fs-16 fw-medium" style="width: 200px;">Logo Media Partner</th>
-                                        <th class="fs-16 fw-medium" style="width: 400px;">Nama Media Partner</th>
+                                        <th class="fs-16 fw-medium" style="width: 750px;">Category Name</th>
                                         <th class="ps-4 fs-16 fw-medium" style="width: 10px;">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody class="table-custom">
                                     <tr v-for="(item, index) in paginatedData" :key="item.id">
-                                        <td class="ps-4 pt-4">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-                                        <td>
-                                            <img :src="`${axios.defaults.baseURL.replace('/api', '')}/storage/uploads/${item.image}`"
-                                                class="rounded-4" style="width: 55px; height: 55px; ">
-                                        </td>
-                                        <td class="pt-4">{{ item.name }}</td>
-                                        <td class="ps-4 pt-4">
+                                        <td class="ps-4">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+                                        <td>{{ item.name }}</td>
+                                        <td class="ps-4">
                                             <div class="dropdown ps-2">
                                                 <button class="btn border-0 dropdown-toggle" type="button"
                                                     data-bs-toggle="dropdown">
@@ -333,14 +276,14 @@ onMounted(() => {
                                                     <h5 class="ms-3 fs-16 fw-normal">Action</h5>
                                                     <li>
                                                         <a class="dropdown-item fw-normal fs-16" href="#"
-                                                            @click="showEditMediaModal(item)">
+                                                            @click="showEditCategoryModal(item)">
                                                             <i class="bi bi-pencil-square me-1 fs-16"></i>
                                                             Edit
                                                         </a>
                                                     </li>
                                                     <li>
                                                         <a class="dropdown-item fw-normal" href="#"
-                                                            @click="showDeleteMediaModal(item)">
+                                                            @click="showDeleteCategoryModal(item)">
                                                             <i class="bi bi-trash me-1 fs-16"></i>
                                                             Delete
                                                         </a>
@@ -350,7 +293,7 @@ onMounted(() => {
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td colspan="4" class="p-1">
+                                        <td colspan="3" class="p-1">
                                             <nav>
                                                 <div class="d-flex justify-content-between align-items-center">
                                                     <div class="d-flex align-items-center">
@@ -402,22 +345,10 @@ onMounted(() => {
                                         <hr class="mt-0">
                                         <div class="ps-3 mt-3 mb-2">
                                             <div class="d-flex align-items-center">
-                                                <label for="editCategoryName" class="me-5 fs-16 mb-0">Name
-                                                </label>
-                                                <input type="text" id="editCategoryName" v-model="currentMedia.name"
-                                                    class="form-control w-66 h-45 c-border"
-                                                    placeholder="Enter category name" />
-                                            </div>
-                                            <div class="d-flex align-items-center mt-3">
-                                                <label for="categoryName" class="fs-16 mb-0 me-60">Logo</label>
-                                                <img v-if="imagePreview" :src="imagePreview" alt="Image Preview"
-                                                    class="img-fluid mb-2" style="max-height: 200px;">
-                                                <input type="file" id="fileInput" class="hidden" accept="image/*"
-                                                    @change="handleFileUploadEdit" />
-                                                <button type="button" class="btn c-border px-4 py-2"
-                                                    onclick="document.getElementById('fileInput').click();">
-                                                    Upload
-                                                </button>
+                                                <label for="editCategoryName" class="me-3 fs-16 mb-0">Name
+                                                    Category</label>
+                                                <input type="text" id="editCategoryName" v-model="currentCategory.name"
+                                                    class="form-control w-66 h-43" placeholder="Enter category name" />
                                             </div>
                                         </div>
                                         <div class="d-flex justify-content-center mb-5">

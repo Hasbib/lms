@@ -17,7 +17,7 @@ import SidebarSA from '@/layout/SidebarSA.vue';
         <div id="contentsa" class="dashboard-sa">
             <div class="container mt-80">
                 <div class="row">
-                    <h1> Hlaman Dashboard</h1>
+                    <h1> Hlaman tools</h1>
                 </div>
             </div>
         </div>

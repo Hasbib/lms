@@ -27,10 +27,18 @@ import DashboardTC from '@/pages/role/teacher/Dashboard.vue';
 
 //Superadmin
 import DashboardSA from '@/pages/role/superadmin/Dashboard.vue';
+import CourseManajemen from '@/pages/role/superadmin/CourseManajemen.vue';
+import FaqAdmin from '@/pages/role/superadmin/Faq.vue';
+import HelpCenter from '@/pages/role/superadmin/HelpCenter.vue';
 import Sponsor from '@/pages/role/superadmin/cms/Sponsor.vue';
 import MediaPartner from '@/pages/role/superadmin/cms/MediaPartner.vue';
 import SosialMedia from '@/pages/role/superadmin/cms/SosialMedia.vue';
 import AboutUs from '@/pages/role/superadmin/cms/AboutUs.vue';
+import MasterDataCategory from '@/pages/role/superadmin/masterdata/MasterDataCategory.vue';
+import MasterDataSkill from '@/pages/role/superadmin/masterdata/MasterDataSkill.vue';
+import MasterDataLevelCourse from '@/pages/role/superadmin/masterdata/MasterDataLevelCourse.vue';
+import MasterDataLevelTeacher from '@/pages/role/superadmin/masterdata/MasterDataLevelTeacher.vue';
+import MasterDataTools from '@/pages/role/superadmin/masterdata/MasterDataTools.vue';
 
 //Auth Student
 import Chooserole from '@/pages/auth/Choose-role.vue';
@@ -107,10 +115,18 @@ const routes = [
 
   //Superadmin
   { path: '/dashboard-superadmin', component: DashboardSA },
+  { path: '/course-manajemen', component: CourseManajemen },
+  { path: '/faq-admin', component: FaqAdmin },
+  { path: '/help-center', component: HelpCenter },
   { path: '/cms/media-partner', component: MediaPartner },
   { path: '/cms/sosial-media', component: SosialMedia},
   { path: '/cms/sponsor', component: Sponsor},
   { path: '/cms/about-us', component: AboutUs},
+  { path: '/master-data/category', component: MasterDataCategory},
+  { path: '/master-data/skills', component: MasterDataSkill},
+  { path: '/master-data/level-course', component: MasterDataLevelCourse},
+  { path: '/master-data/level-teacher', component: MasterDataLevelTeacher},
+  { path: '/master-data/tools', component: MasterDataTools},
 
   //Auth Student
   { path: '/choose-role', component: Chooserole },
